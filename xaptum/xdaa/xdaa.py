@@ -41,6 +41,9 @@ def negotiate_secret(sock, group):
     """Performs the XDAA handshake on the given socket and returns the negotiated
     shared secret.
 
+    Raises *socket.error* on underlying socket errors and *xdaa.XDAAError* on
+    handshake errors.
+
     """
     # Initialize parameters
     group = daa_group.from_encoded(group)

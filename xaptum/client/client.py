@@ -30,6 +30,14 @@ def secure_socket(sock, shared_secret, ciphers=default_ciphers, ssl_version=defa
                               ssl_version=ssl_version)
 
 def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_ssl_version):
+    """Establishes a connection to the Xaptum ENF.
+
+    Raises *socket.error* on underlying socket errors, *ssl.SSLError* on
+    underlying SSL socket errors, and *xaptum.xdaa.XDAAError* on errors during
+    the XDAA secret negotiation.
+
+    """
+
     tcpsock = socket.create_connection((host, port))
     secret  = xdaa.negotiate_secret(tcpsock, daa_group)
     tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
