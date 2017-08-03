@@ -25,7 +25,16 @@ from xaptum.xdaa import util
 class XDAAError(Exception):
     pass
 
+class XDAAIncorrectGroupError(XDAAError):
+    pass
+
+class XDAAInvalidSignatureError(XDAAError):
+    pass
+
 class XDAASocketClosedError(XDAAError):
+    pass
+
+class XDAAUnsupportedVersionError(XDAAError):
     pass
 
 def negotiate_secret(sock, group):
@@ -53,8 +62,14 @@ def negotiate_secret(sock, group):
         raise XDAASocketClosedError("Socket closed while reading ServerKeyExchange")
     msg = msg.parse_body(buf)
 
-    assert(msg.group_id == server.group.id)
-    assert(msg.verify_signature(client, server))
+    if msg.version != 0:
+        raise XDAAUnsupportedVersionError("ServerKeyExchange has version %d. Only version 0 is supported."%
+                                          msg.version)
+    if msg.group_id != server.group.id:
+        raise XDAAIncorrectGroupError("ServerKeyExchange has incorrect DAA group.")
+    if not msg.verify_signature(client, server):
+        raise XDAAInvalidSignatureError("ServerKeyExchange signature is invalid")
+
     server = msg.add_params_to(server)
 
     # ClientKeyExchange
