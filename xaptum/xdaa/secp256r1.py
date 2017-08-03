@@ -16,6 +16,7 @@ from __future__ import absolute_import, print_function
 
 import codecs
 
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat import backends
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
@@ -40,12 +41,15 @@ class public_key(object):
         self._public = public
 
     def _verify(self, signature, message, hash):
-        return self._public.verify(signature, message, hash)
+        try:
+            self._public.verify(signature, message, hash)
+            return True
+        except InvalidSignature:
+            return False
 
     def verify_sha256(self, signature, message):
         hash = ec.ECDSA(hashes.SHA256())
-        self._verify(signature, message, hash) # raises Exception on failure
-        return True
+        return self._verify(signature, message, hash)
 
 class private_key(object):
 
