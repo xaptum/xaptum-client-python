@@ -20,6 +20,13 @@ import struct
 from collections import namedtuple
 from xaptum.xdaa import secp256r1
 from xaptum.xdaa import x25519
+from xaptum.xdaa import util
+
+class XDAAError(Exception):
+    pass
+
+class XDAASocketClosedError(XDAAError):
+    pass
 
 def negotiate_secret(sock, group):
     """Performs the XDAA handshake on the given socket and returns the negotiated
@@ -33,12 +40,17 @@ def negotiate_secret(sock, group):
 
     # ClientHello
     msg = client_hello.build_from_params(client)
-    sock.send(msg.buffer)
+    sock.sendall(msg.buffer)
 
     # ServerKeyExchange
-    buf = sock.recv(server_key_exchange.header_len)
+    buf = util.recvexactly(sock, server_key_exchange.header_len)
+    if buf == "":
+        raise XDAASocketClosedError("Socket closed while reading ServerKeyExchange")
     msg = server_key_exchange.parse_header(buf)
-    buf = sock.recv(msg.body_len)
+
+    buf = util.recvexactly(sock, msg.body_len)
+    if buf == "":
+        raise XDAASocketClosedError("Socket closed while reading ServerKeyExchange")
     msg = msg.parse_body(buf)
 
     assert(msg.group_id == server.group.id)
@@ -47,7 +59,7 @@ def negotiate_secret(sock, group):
 
     # ClientKeyExchange
     msg = client_key_exchange.build_from_params(client, server)
-    sock.send(msg.buffer)
+    sock.sendall(msg.buffer)
 
     # Compute shared secret
     shared_secret = client.ephemeral.compute_shared(server.ephemeral_public)[::-1]
