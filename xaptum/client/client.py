@@ -21,7 +21,7 @@ import sslpsk
 from xaptum import xdaa
 
 default_ciphers     = "PSK-AES256-GCM-SHA384:PSK-AES256-CBC-SHA"
-default_ssl_version = ssl.PROTOCOL_TLS
+default_ssl_version = ssl.PROTOCOL_TLSv1_2
 
 def secure_socket(sock, shared_secret, ciphers=default_ciphers, ssl_version=default_ssl_version):
     return sslpsk.wrap_socket(sock,
