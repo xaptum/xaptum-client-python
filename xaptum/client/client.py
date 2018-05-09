@@ -1,4 +1,4 @@
-# Copyright 2017 Xaptum, Inc.
+# Copyright 2017-2018 Xaptum, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -15,34 +15,31 @@
 from __future__ import absolute_import, print_function
 
 import socket
-import ssl
-import sslpsk
 
-from xaptum import xdaa
+from xaptum.client import provision
 
-default_ciphers     = "PSK-AES256-GCM-SHA384:PSK-AES256-CBC-SHA"
-default_ssl_version = ssl.PROTOCOL_TLSv1_2
-
-def secure_socket(sock, shared_secret, ciphers=default_ciphers, ssl_version=default_ssl_version):
-    return sslpsk.wrap_socket(sock,
-                              psk=(shared_secret, 'x'),
-                              ciphers=ciphers,
-                              ssl_version=ssl_version)
-
-def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_ssl_version):
+def connect(host, port, group_params, root_cert, server_id):
     """Establishes a connection to the Xaptum ENF.
 
     Raises *socket.error* on underlying socket errors, *ssl.SSLError* on
-    underlying SSL socket errors, and *xaptum.xdaa.XDAAError* on errors during
-    the XDAA secret negotiation.
+    underlying SSL socket errors, and *xtt.XTTError* on errors during
+    XTT identity provisioning negotiation.
 
     """
+    context = provision.ProvisioningContext()
+    context.group_params     = group_params
+    context.root_certificate = root_cert
+    context.server_id        = server_id
 
     tcpsock = socket.create_connection((host, port))
     try:
-        secret  = xdaa.negotiate_secret(tcpsock, daa_group)
-        tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
-        return tlssock
+        identity = provision.provision(tcpsock, context)
+        return identity
     except Exception as e:
         tcpsock.close()
         raise e
+
+    # secret  = xdaa.negotiate_secret(tcpsock, daa_group)
+    # tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
+
+    # return tlssock
