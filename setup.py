@@ -1,4 +1,4 @@
-# Copyright 2017 Xaptum, Inc.
+# Copyright 2017-2018 Xaptum, Inc.
 #
 #    Licensed under the Apache License, Version 2.0 (the "License");
 #    you may not use this file except in compliance with the License.
@@ -43,7 +43,6 @@ setup(
                 'xaptum.client',
                 'xaptum.dds',
                 'xaptum.xdaa'],
-    install_requires = ['cryptography>=1.9',
-                        'donna25519>=0.1.1',
-                        'sslpsk>=1.0']
+    install_requires = ['xtt>=0.7.2',
+                        'wolfssl_with_ed25519']
     )
