@@ -16,9 +16,11 @@ from __future__ import absolute_import, print_function
 
 import socket
 
-from xaptum.client import provision
+from xaptum.client import provision, ProvisioningContext
+from xaptum.client import tunnel
 
-def connect(host, port, group_params, root_cert, server_id):
+def connect(host, xtt_port, group_params, root_cert, server_id,
+            tls_port, tls_ca_cert):
     """Establishes a connection to the Xaptum ENF.
 
     Raises *socket.error* on underlying socket errors, *ssl.SSLError* on
@@ -26,20 +28,24 @@ def connect(host, port, group_params, root_cert, server_id):
     XTT identity provisioning negotiation.
 
     """
-    context = provision.ProvisioningContext()
+    # Provision Identity
+    context = ProvisioningContext()
     context.group_params     = group_params
     context.root_certificate = root_cert
     context.server_id        = server_id
 
-    tcpsock = socket.create_connection((host, port))
+    sock = socket.create_connection((host, xtt_port))
     try:
-        identity = provision.provision(tcpsock, context)
-        return identity
+        identity = provision(sock, context)
+    finally:
+        sock.close()
+
+    # Establish Tunnel
+    sock = socket.create_connection((host, tls_port))
+    try:
+        tls_sock = tunnel(sock, context.certificate_file,
+                          context.private_key_file, tls_ca_cert)
+        return (identity, tls_sock)
     except Exception as e:
-        tcpsock.close()
+        sock.close()
         raise e
-
-    # secret  = xdaa.negotiate_secret(tcpsock, daa_group)
-    # tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
-
-    # return tlssock

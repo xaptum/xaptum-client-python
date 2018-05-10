@@ -123,13 +123,11 @@ class ProvisioningContext(object):
         the ENF.
         """
         if self._cert_file == None:
-            self._cert_file = tempfile.NamedTemporaryFile(delete=False)
+            self._cert_file = tempfile.NamedTemporaryFile(delete=False).name
         return self._cert_file
 
     @certificate_file.setter
     def certificate_file(self, file):
-        if self._cert_file:
-            self._cert_file.close()
         self._cert_file = file
 
     @property
@@ -141,13 +139,11 @@ class ProvisioningContext(object):
         the ENF.
         """
         if self._privkey_file == None:
-            self._privkey_file = tempfile.NamedTemporaryFile(delete=False)
+            self._privkey_file = tempfile.NamedTemporaryFile(delete=False).name
         return self._privkey_file
 
     @private_key_file.setter
     def private_key_file(self, file):
-        if self._privkey_file:
-            self._privkey_file.close()
         self._privkey_file = file
 
 def provision(sock, context):
@@ -174,14 +170,18 @@ def provision(sock, context):
     pubkey   = xtt_sock.longterm_public_key
     privkey  = xtt_sock.longterm_private_key
 
-    # Save the certificate
-    cert_der  = xtt.x509_from_ed25519_key_pair(pubkey, privkey, identity)
+    # Save the certificate and private key
+    def write(file, contents):
+        with open(file, 'wb') as f:
+            f.write(contents)
+
+    cert_der = xtt.x509_from_ed25519_key_pair(pubkey, privkey, identity)
     cert_pem  = pem_encode(cert_der, b"CERTIFICATE")
-    context.certificate_file.write(cert_pem)
+    write(context.certificate_file, cert_pem)
 
     # Save the private key
     key_der  = xtt.asn1_from_ed25519_private_key(privkey)
     key_pem  = pem_encode(key_der, b"EDDSA PRIVATE KEY")
-    context.private_key_file.write(key_pem)
+    write(context.private_key_file, key_pem)
 
     return identity
