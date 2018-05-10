@@ -13,28 +13,42 @@ python setup.py install
 
 ```python
 import xaptum.client
+from xaptum.client import (
+    GroupParams, RootCertificate, ServerIdentity
+)
 
-HOST  = '23.147.127.112'
-PORT  = 443
-GROUP = 'id,public,private'  # Actual value will be provided by Xaptum.
+HOST = '23.147.127.112'
+TLS_PORT = 443
+XTT_PORT = 4444
+
+SERVER_ID    = ServerIdentity.load("server_id.bin")
+ROOT_CERT    = RootCertificate.load("root_cert_id.bin", "root_cert_pubkey.bin")
+GROUP_PARAMS = GroupParams.load("group_id.bin", "group_basename.bin",
+                                "group_credential.bin", "group_seckey.bin")
+
+TLS_CA_CERT = "/etc/ssl/cacert.pem"
 
 def example():
-    conn = xaptum.client.connect(HOST, PORT, GROUP)
+    (identity, conn) = xaptum.client.connect(HOST, XTT_PORT, GROUP_PARAMS, ROOT_CERT, SERVER_ID,
+                                             TLS_PORT, TLS_CA_CERT)
     conn.send("my data")
     conn.close()
 
 if __name__ == "__main__":
-   example()
+    example()
+)
 ```
 
 ## TODOs
 
-Currently `xaptum.client.connect(...)` does not perform DDS authentication and
+Currently `xaptum.client.connect(...)` does not perform DDS registration and
 the returned socket does not expose methods to read or write payloads in the
 DDS format.
 
 ## Changelog
 
++ 0.2.0 (May 9, 2018)
+  + switch to XTT for provisioning
 + 0.1.0 (August 2, 2017)
   + initial release
 
