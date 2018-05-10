@@ -44,5 +44,5 @@ setup(
                 'xaptum.dds',
                 'xaptum.xdaa'],
     install_requires = ['xtt>=0.7.2',
-                        'wolfssl_with_ed25519']
+                        'wolfssl_with_ed25519>=3.14.4']
     )
