@@ -56,12 +56,12 @@ def negotiate_secret(sock, group):
 
     # ServerKeyExchange
     buf = util.recvexactly(sock, server_key_exchange.header_len)
-    if buf == "":
+    if len(buf) == 0:
         raise XDAASocketClosedError("Socket closed while reading ServerKeyExchange")
     msg = server_key_exchange.parse_header(buf)
 
     buf = util.recvexactly(sock, msg.body_len)
-    if buf == "":
+    if len(buf) == 0:
         raise XDAASocketClosedError("Socket closed while reading ServerKeyExchange")
     msg = msg.parse_body(buf)
 

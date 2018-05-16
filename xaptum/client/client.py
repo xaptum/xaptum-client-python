@@ -43,6 +43,6 @@ def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_
         secret  = xdaa.negotiate_secret(tcpsock, daa_group)
         tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
         return tlssock
-    except Excetion as e:
+    except Exception as e:
         tcpsock.close()
         raise e
