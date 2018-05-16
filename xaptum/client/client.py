@@ -39,8 +39,10 @@ def connect(host, port, daa_group, ciphers=default_ciphers, ssl_version=default_
     """
 
     tcpsock = socket.create_connection((host, port))
-    secret  = xdaa.negotiate_secret(tcpsock, daa_group)
-    tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
-    #TODO perform DDS authentication
-    
-    return tlssock
+    try:
+        secret  = xdaa.negotiate_secret(tcpsock, daa_group)
+        tlssock = secure_socket(tcpsock, secret, ciphers=ciphers, ssl_version=default_ssl_version)
+        return tlssock
+    except Excetion as e:
+        tcpsock.close()
+        raise e
