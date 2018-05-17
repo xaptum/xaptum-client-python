@@ -42,5 +42,5 @@ setup(
     packages = ['xaptum',
                 'xaptum.client'],
     install_requires = ['xtt>=0.7.2',
-                        'wolfssl_with_ed25519>=3.14.4']
+                        'wolfssl_with_ed25519>=3.14.4-1']
     )
