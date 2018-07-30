@@ -26,11 +26,21 @@ def _markers(pem_marker):
     return (b'-----BEGIN ' + pem_marker + b'-----',
             b'-----END '   + pem_marker + b'-----')
 
+def _chunk_string(string, line_length):
+    index = 0
+    while index < len(string):
+        next_index = min(index+line_length, len(string))
+        yield string[index:next_index]
+        index = next_index
+
 def pem_encode(contents, pem_marker):
         (pem_start, pem_end) = _markers(pem_marker)
 
         pem_lines = [pem_start]
-        pem_lines.append(base64.standard_b64encode(contents))
+        encoded_line = base64.standard_b64encode(contents)
+        pem_line_length = 64
+        encoded_chunks = _chunk_string(encoded_line, pem_line_length)
+        pem_lines += list(encoded_chunks)
         pem_lines.append(pem_end)
         pem_lines.append(b'')
 
