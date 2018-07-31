@@ -16,7 +16,7 @@ from setuptools import setup
 
 setup(
     name    = 'xaptum-client',
-    version = '0.2.0',
+    version = '0.3.0',
     description = 'Client libraries for the Xaptum ENF',
     author = 'Xaptum, Inc',
     author_email = 'sales@xaptum.com',
@@ -41,6 +41,6 @@ setup(
         ],
     packages = ['xaptum',
                 'xaptum.client'],
-    install_requires = ['xtt>=0.7.2-1',
-                        'wolfssl_with_ed25519>=3.14.4-1']
+    install_requires = ['xtt>=0.9.2-0',
+                        'wolfssl>=3.14.0-1']
     )

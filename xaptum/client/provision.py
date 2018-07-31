@@ -25,7 +25,7 @@ __all__ = [
 ]
 
 default_version    = xtt.Version.ONE
-default_suite_spec = xtt.SuiteSpec.XTT_X25519_LRSW_ED25519_CHACHA20POLY1305_SHA512
+default_suite_spec = xtt.SuiteSpec.XTT_X25519_LRSW_ECDSAP256_CHACHA20POLY1305_SHA512
 
 class RootCertificate(object):
 
@@ -46,7 +46,7 @@ class RootCertificate(object):
         self.id = xtt.CertificateRootId.from_file(filename)
 
     def load_public_key(self, filename):
-        self.public_key = xtt.ED25519PublicKey.from_file(filename)
+        self.public_key = xtt.ECDSAP256PublicKey.from_file(filename)
 
 class ServerIdentity(object):
 
@@ -175,13 +175,13 @@ def provision(sock, context):
         with open(file, 'wb') as f:
             f.write(contents)
 
-    cert_der = xtt.x509_from_ed25519_key_pair(pubkey, privkey, identity)
+    cert_der = xtt.x509_from_ecdsap256_key_pair(pubkey, privkey, identity)
     cert_pem  = pem_encode(cert_der, b"CERTIFICATE")
     write(context.certificate_file, cert_pem)
 
     # Save the private key
-    key_der  = xtt.asn1_from_ed25519_private_key(privkey)
-    key_pem  = pem_encode(key_der, b"EDDSA PRIVATE KEY")
+    key_der  = xtt.asn1_from_ecdsap256_private_key(privkey, pubkey)
+    key_pem  = pem_encode(key_der, b"EC PRIVATE KEY")
     write(context.private_key_file, key_pem)
 
     return identity
