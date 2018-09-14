@@ -16,7 +16,7 @@ from setuptools import setup
 
 setup(
     name    = 'xaptum-client',
-    version = '0.3.0',
+    version = '0.3.1',
     description = 'Client libraries for the Xaptum ENF',
     author = 'Xaptum, Inc',
     author_email = 'sales@xaptum.com',
