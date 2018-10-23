@@ -15,9 +15,9 @@
 from __future__ import absolute_import, print_function
 
 import socket
+import ssl
 
 from xaptum.client import provision, ProvisioningContext
-from xaptum.client import tunnel
 
 def connect(host, xtt_port, group_params, root_cert, server_id,
             tls_port, tls_ca_cert):
@@ -43,8 +43,12 @@ def connect(host, xtt_port, group_params, root_cert, server_id,
     # Establish Tunnel
     sock = socket.create_connection((host, tls_port))
     try:
-        tls_sock = tunnel(sock, context.certificate_file,
-                          context.private_key_file, tls_ca_cert)
+        tls_sock = ssl.wrap_socket(sock,
+                                   keyfile=context.private_key_file,
+                                   certfile=context.certificate_file,
+                                   ca_certs=tls_ca_cert,
+                                   cert_reqs=ssl.CERT_REQUIRED)
+        tls_sock.do_handshake()
         return (identity, tls_sock)
     except Exception as e:
         sock.close()
