@@ -41,5 +41,5 @@ setup(
         ],
     packages = ['xaptum',
                 'xaptum.client'],
-    install_requires = ['xtt>=0.9.2-0']
+    install_requires = ['xtt>=0.10.0-0']
     )
